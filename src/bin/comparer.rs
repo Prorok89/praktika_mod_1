@@ -1,13 +1,14 @@
 use std::io::Read;
+ 
 
-use parser::yp_bank_csv::YPBankCSV;
+use parser::{error::ParseError, yp_bank_csv::YPBankCSV};
 
 
-fn main() {
+fn main() -> Result<(), ParseError>{
 
     let path_file : &str = "file_example/records_example.csv";
 
-    let res_check = parser::check_file(path_file).unwrap_or(false);
+    let res_check = parser::check_file(path_file)?;
 
     // let csv = YPBankCSV::new(path_file.to_string().clone());
 
@@ -15,5 +16,7 @@ fn main() {
 
 
     println!("1 - {path_file}");
+
+    Ok(())
 
 }

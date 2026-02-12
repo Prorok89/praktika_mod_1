@@ -1,3 +1,7 @@
+use std::fmt;
+
+use crate::error::ParseError;
+
 #[derive(Debug)]
 pub enum Status {
     Success,
@@ -25,6 +29,34 @@ pub struct RecordingOperation {
     pub description : String,
 }
 
+pub enum FieldRecordingOperation{
+    TxId,
+    TxType,
+    FromUserId,
+    ToUserId,
+    Amount,
+    Timestamp,
+    Status,
+    DescLen,
+    Description,
+}
+
+impl fmt::Debug for FieldRecordingOperation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::TxId => write!(f, "TX_ID"),
+            Self::TxType => write!(f, "TX_TYPE"),
+            Self::FromUserId => write!(f, "FROM_USER_ID"),
+            Self::ToUserId => write!(f, "TO_USER_ID"),
+            Self::Amount => write!(f, "AMOUNT"),
+            Self::Timestamp => write!(f, "TimesTIMESTAMPtamp"),
+            Self::Status => write!(f, "STATUS"),
+            Self::DescLen => write!(f, "DESC_LEN"),
+            Self::Description => write!(f, "DESCRIPTION"),
+        }
+    }
+}
+
 impl From<TxType> for String {
     
     fn from(value: TxType) -> Self {
@@ -38,12 +70,12 @@ impl From<TxType> for String {
 
 impl TxType{
     
-    pub fn from_str(value: &str) -> Result<TxType, ()> {
+    pub fn from_str(value: &str) -> Result<TxType, ParseError> {
         match value {
             "DEPOSIT" => Ok(TxType::Deposit),
             "TRANSFER" => Ok(TxType::Transfer),
             "WITHDRAWAL" => Ok(TxType::Withdrawal),
-            _ => Err(())
+            _ => Err(ParseError::IncorrectOperation { operation: value.to_string() })
         }
     }
 }
@@ -60,12 +92,12 @@ impl From<Status> for String {
 
 impl Status{
     
-    pub fn from_str(value: &str) -> Result<Status, ()> {
+    pub fn from_str(value: &str) -> Result<Status, ParseError> {
         match value {
             "FAILURE" => Ok(Status::Failure),
             "PENDING" => Ok(Status::Pending),
             "SUCCESS" => Ok(Status::Success),
-            _ => Err(())
+            _ => Err(ParseError::IncorrectStatus { status: value.to_string() })
         }
     }
 }

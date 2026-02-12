@@ -1,8 +1,11 @@
 use std::io::{BufRead, BufReader, Read};
 
-use crate::recording_operation::{RecordingOperation, Status, TxType};
+use crate::error::ParseError;
+
+use crate::recording_operation::{FieldRecordingOperation, RecordingOperation, Status, TxType};
 
 const HEADER: &str = "TX_ID,TX_TYPE,FROM_USER_ID,TO_USER_ID,AMOUNT,TIMESTAMP,STATUS,DESCRIPTION";
+
 const EXTENSION: &str = "csv";
 
 pub struct YPBankCSV {
@@ -10,57 +13,52 @@ pub struct YPBankCSV {
 }
 
 impl YPBankCSV {
-    pub fn read<R: std::io::Read>(r: &mut R) -> Result<bool, ()> {
+    pub fn read<R: std::io::Read>(r: &mut R) -> Result<Vec<RecordingOperation>, ParseError> {
         let mut records: Vec<RecordingOperation> = Vec::new();
-        let buf_reader = BufReader::new(r);
 
-        let mut lines = buf_reader.lines();
+        let mut buf_reader = BufReader::new(r);
 
-        if let Some(Ok(first_line)) = lines.next() {
-            if first_line == HEADER {
-                let mut gg = 0;
-                println!("Файл корректный");
-                for line in lines {
-                    if let Ok(l) = line {
-                        if !l.is_empty() {
-                            let ff = Self::create(&l)?;
-                            gg+=1;
-                            println!("{:#?}", ff);
-                        }
-                    }
-                    if gg > 10 {
+        let mut header = String::new();
+        let first_line_size = buf_reader.read_line(&mut header)?;
 
-                        break;
-                    }
-                }
-            } else {
-                println!("Файл не корректный");
-            }
-        } else {
-            // вернуть ошибку, файл пустой
+        if first_line_size == 0 {
+            return Err(ParseError::FileIsEmpty);
         }
 
-        // r.lines();
+        if header.trim() != HEADER {
+            return Err(ParseError::IncorrectTitle);
+        }
 
-        // println!("{}", lines);
+        let lines = buf_reader.lines();
 
-        Ok(false)
+        for line in lines {
+            match line {
+                Ok(l) => {
+                    if !l.is_empty() {
+                        let record = Self::create(&l)?;
+                        records.push(record);
+                    }
+                }
+                Err(_) => return Err(ParseError::NotKnow),
+            }
+        }
+
+        Ok(records)
     }
 
-    fn create(line: &str) -> Result<RecordingOperation, ()> {
+    fn create(line: &str) -> Result<RecordingOperation, ParseError> {
         let elem: Vec<&str> = line.trim().split(',').collect();
 
         if elem.len() == 8 {
-
             let description = Self::get_description(elem[7])?;
 
             let d: RecordingOperation = RecordingOperation {
-                tx_id: Self::parse_u64(elem[0])?,
+                tx_id: Self::parse_u64(elem[0], FieldRecordingOperation::TxId)?,
                 tx_type: TxType::from_str(elem[1])?,
-                from_user_id: Self::parse_u64(elem[2])?,
-                to_user_id: Self::parse_u64(elem[3])?,
-                amount: Self::parse_i64(elem[4])?,
-                timestamp: Self::parse_i64(elem[5])?,
+                from_user_id: Self::parse_u64(elem[2], FieldRecordingOperation::FromUserId)?,
+                to_user_id: Self::parse_u64(elem[3], FieldRecordingOperation::ToUserId)?,
+                amount: Self::parse_i64(elem[4], FieldRecordingOperation::Amount)?,
+                timestamp: Self::parse_i64(elem[5], FieldRecordingOperation::Timestamp)?,
                 status: Status::from_str(elem[6])?,
                 desc_len: description.len(),
                 description: description,
@@ -69,35 +67,34 @@ impl YPBankCSV {
             return Ok(d);
         }
 
-        Err(())
+        Err(ParseError::NotKnow)
     }
 
-    fn parse_u64(i: &str) -> Result<u64, ()> {
-        match i.parse() {
+    fn parse_u64(i: &str, field: FieldRecordingOperation) -> Result<u64, ParseError> {
+        match i.parse::<u64>() {
             Ok(u) => Ok(u),
-            Err(_) => {
-                println!("Error parse_u64");
-                Err(())
-            }
+            Err(_) => Err(ParseError::IncorrectFields {
+                field,
+                value: i.to_string(),
+            }),
         }
     }
 
-    fn parse_i64(i: &str) -> Result<i64, ()> {
-        match i.parse() {
+    fn parse_i64(i: &str, field: FieldRecordingOperation) -> Result<i64, ParseError> {
+        match i.parse::<i64>() {
             Ok(u) => Ok(u),
-            Err(_) => {
-                println!("Error parse_i64");
-                Err(())
-            }
+            Err(_) => Err(ParseError::IncorrectFields {
+                field,
+                value: i.to_string(),
+            }),
         }
     }
 
-    fn get_description(description: &str) -> Result<String, ()> {
-        
+    fn get_description(description: &str) -> Result<String, ParseError> {
         if description.starts_with('"') && description.ends_with('"') {
-            Ok(description[1..(description.len()-1)].to_string())
+            Ok(description[1..(description.len() - 1)].to_string())
         } else {
-            Err(())
+            Err(ParseError::IncorrectDesciprtion)
         }
     }
 
