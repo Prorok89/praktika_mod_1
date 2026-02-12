@@ -1,49 +1,31 @@
-pub mod recording_operation;
 pub mod error;
+pub mod recording_operation;
 
-use std::{fs::File, io::{self, Read}, path::Path};
+use std::{
+    fs::File,
+    io::{Read, Write},
+    path::Path,
+};
 
 use crate::{error::ParseError, recording_operation::RecordingOperation, yp_bank_csv::YPBankCSV};
 
-
 trait YPBankRecord {
-    
-    fn read_record() -> Result<Vec<RecordingOperation>, ()>;
-    fn write_record() -> Result<String, ()>;
-}
-
-enum AvailableExtensions {
-    
+    fn read_record<R: Read>(r: &mut R) -> Result<Vec<RecordingOperation>, ParseError>;
+    fn write_record<W: Write>(w: &mut W) -> Result<String, ParseError>;
 }
 
 pub mod yp_bank_csv;
 
-pub fn check_file(path_file : &str) -> Result<bool, ParseError> {
-
-    println!("{path_file}");
-
+pub fn read_file(path_file: &str) -> Result<Vec<RecordingOperation>, ParseError> {
     let path = Path::new(path_file);
 
     if path.exists() {
-        
-        let file = File::open(path);
+        let mut file = File::open(path).map_err(ParseError::IoError)?;
 
-        match file {
-            Ok(file) => {
-                let mut reader = io::BufReader::new(file);
-                let gg = YPBankCSV::read(&mut reader)?;
-            }
-            Err(_) => println!("222")
-        }
+        let records: Vec<RecordingOperation> = YPBankCSV::read_record(&mut file)?;
 
-        // if let Some(extension) =  path.extension() {
-        //     match extension.to_string_lossy().to_lowercase().as_str() {
-        //         "csv" => println!("1 - csv"),
-        //         _ => println!(" not know")
-        //     }
-        // }
-        Ok(true) 
+        Ok(records)
     } else {
-        Ok(false)
+        Err(ParseError::FileNotFound)
     }
 }

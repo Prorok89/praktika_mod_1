@@ -70,7 +70,7 @@ impl From<TxType> for String {
 
 impl TxType{
     
-    pub fn from_str(value: &str) -> Result<TxType, ParseError> {
+    pub fn str_to_tx_type(value: &str) -> Result<TxType, ParseError> {
         match value {
             "DEPOSIT" => Ok(TxType::Deposit),
             "TRANSFER" => Ok(TxType::Transfer),
@@ -92,7 +92,7 @@ impl From<Status> for String {
 
 impl Status{
     
-    pub fn from_str(value: &str) -> Result<Status, ParseError> {
+    pub fn str_to_status(value: &str) -> Result<Status, ParseError> {
         match value {
             "FAILURE" => Ok(Status::Failure),
             "PENDING" => Ok(Status::Pending),

@@ -1,5 +1,6 @@
-use std::io::{BufRead, BufReader, Read};
+use std::io::{BufRead, BufReader, Read, Write};
 
+use crate::YPBankRecord;
 use crate::error::ParseError;
 
 use crate::recording_operation::{FieldRecordingOperation, RecordingOperation, Status, TxType};
@@ -8,12 +9,10 @@ const HEADER: &str = "TX_ID,TX_TYPE,FROM_USER_ID,TO_USER_ID,AMOUNT,TIMESTAMP,STA
 
 const EXTENSION: &str = "csv";
 
-pub struct YPBankCSV {
-    pub path_file: String,
-}
+pub struct YPBankCSV;
 
-impl YPBankCSV {
-    pub fn read<R: std::io::Read>(r: &mut R) -> Result<Vec<RecordingOperation>, ParseError> {
+impl YPBankRecord for YPBankCSV {
+    fn read_record<R: Read>(r: &mut R) -> Result<Vec<RecordingOperation>, ParseError> {
         let mut records: Vec<RecordingOperation> = Vec::new();
 
         let mut buf_reader = BufReader::new(r);
@@ -34,9 +33,17 @@ impl YPBankCSV {
         for line in lines {
             match line {
                 Ok(l) => {
-                    if !l.is_empty() {
-                        let record = Self::create(&l)?;
+                    if l.is_empty() {
+                        continue;
+                    }
+
+                    let elems = Self::parse_csv_line(&l);
+
+                    if elems.len() == 8 {
+                        let record = Self::create(elems)?;
                         records.push(record);
+                    } else {
+                        return Err(ParseError::NotKnow);
                     }
                 }
                 Err(_) => return Err(ParseError::NotKnow),
@@ -46,28 +53,45 @@ impl YPBankCSV {
         Ok(records)
     }
 
-    fn create(line: &str) -> Result<RecordingOperation, ParseError> {
-        let elem: Vec<&str> = line.trim().split(',').collect();
+    fn write_record<W: Write>(w: &mut W) -> Result<String, ParseError> {
+        todo!()
+    }
+}
 
-        if elem.len() == 8 {
-            let description = Self::get_description(elem[7])?;
+impl YPBankCSV {
+    fn create(elems: Vec<&str>) -> Result<RecordingOperation, ParseError> {
+        let description = Self::get_description(elems[7])?;
 
-            let d: RecordingOperation = RecordingOperation {
-                tx_id: Self::parse_u64(elem[0], FieldRecordingOperation::TxId)?,
-                tx_type: TxType::from_str(elem[1])?,
-                from_user_id: Self::parse_u64(elem[2], FieldRecordingOperation::FromUserId)?,
-                to_user_id: Self::parse_u64(elem[3], FieldRecordingOperation::ToUserId)?,
-                amount: Self::parse_i64(elem[4], FieldRecordingOperation::Amount)?,
-                timestamp: Self::parse_i64(elem[5], FieldRecordingOperation::Timestamp)?,
-                status: Status::from_str(elem[6])?,
-                desc_len: description.len(),
-                description: description,
-            };
+        let d: RecordingOperation = RecordingOperation {
+            tx_id: Self::parse_u64(elems[0], FieldRecordingOperation::TxId)?,
+            tx_type: TxType::str_to_tx_type(elems[1])?,
+            from_user_id: Self::parse_u64(elems[2], FieldRecordingOperation::FromUserId)?,
+            to_user_id: Self::parse_u64(elems[3], FieldRecordingOperation::ToUserId)?,
+            amount: Self::parse_i64(elems[4], FieldRecordingOperation::Amount)?,
+            timestamp: Self::parse_i64(elems[5], FieldRecordingOperation::Timestamp)?,
+            status: Status::str_to_status(elems[6])?,
+            desc_len: description.len(),
+            description,
+        };
 
-            return Ok(d);
+        Ok(d)
+    }
+
+    fn parse_csv_line(line: &str) -> Vec<&str> {
+        let mut result: Vec<&str> = Vec::new();
+        let mut start = 0;
+
+        for (i, char) in line.char_indices() {
+            if char == '"' {
+                break;
+            } else if char == ',' {
+                result.push(&line[start..i]);
+                start = i + 1;
+            }
         }
 
-        Err(ParseError::NotKnow)
+        result.push(&line[start..]);
+        result
     }
 
     fn parse_u64(i: &str, field: FieldRecordingOperation) -> Result<u64, ParseError> {
@@ -95,12 +119,6 @@ impl YPBankCSV {
             Ok(description[1..(description.len() - 1)].to_string())
         } else {
             Err(ParseError::IncorrectDesciprtion)
-        }
-    }
-
-    pub fn new(path_file: String) -> Self {
-        Self {
-            path_file: path_file,
         }
     }
 

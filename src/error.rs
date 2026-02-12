@@ -1,17 +1,18 @@
-use std::{error::Error, fmt};
+use std::{error::Error, fmt, io};
 
 use crate::recording_operation::FieldRecordingOperation;
 
 #[derive(Debug)]
 pub enum ParseError {
     FileIsEmpty,
+    FileNotFound,
     IncorrectTitle,
     IncorrectDesciprtion,
     IncorrectFields {
         field : FieldRecordingOperation,
         value : String
     },
-    IoError,
+    IoError (io::Error),
     IncorrectStatus {
         status : String
     },
@@ -34,6 +35,6 @@ impl Error for ParseError {}
 
 impl From<std::io::Error> for ParseError {
     fn from(value: std::io::Error) -> Self {
-        ParseError::IoError
+        ParseError::IoError(value)
     }
 }
