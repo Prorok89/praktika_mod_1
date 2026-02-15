@@ -41,6 +41,22 @@ pub enum FieldRecordingOperation {
     Description,
 }
 
+impl FieldRecordingOperation {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::TxId => "TX_ID",
+            Self::TxType => "TX_TYPE",
+            Self::FromUserId => "FROM_USER_ID",
+            Self::ToUserId => "TO_USER_ID",
+            Self::Amount => "AMOUNT",
+            Self::Timestamp => "TIMESTAMP",
+            Self::Status => "STATUS",
+            Self::DescLen => "DESC_LEN",
+            Self::Description => "DESCRIPTION",
+        }
+    }
+}
+
 impl fmt::Debug for FieldRecordingOperation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -49,7 +65,7 @@ impl fmt::Debug for FieldRecordingOperation {
             Self::FromUserId => write!(f, "FROM_USER_ID"),
             Self::ToUserId => write!(f, "TO_USER_ID"),
             Self::Amount => write!(f, "AMOUNT"),
-            Self::Timestamp => write!(f, "TimesTIMESTAMPtamp"),
+            Self::Timestamp => write!(f, "TIMESTAMP"),
             Self::Status => write!(f, "STATUS"),
             Self::DescLen => write!(f, "DESC_LEN"),
             Self::Description => write!(f, "DESCRIPTION"),

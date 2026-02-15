@@ -6,6 +6,9 @@ use crate::recording_operation::FieldRecordingOperation;
 pub enum ParseError {
     FileIsEmpty,
     FileNotFound,
+    StringIncorrect {
+        value : String
+    },    
     IncorrectTitle,
     IncorrectDesciprtion,
     IncorrectFields {
@@ -21,6 +24,9 @@ pub enum ParseError {
     },
     SystemTimeError,
     ExtensionNotSupported,
+    MissingField {
+        field : String
+    },
     NotKnow, //заменить все вхождения
 }
 
