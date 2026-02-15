@@ -20,6 +20,7 @@ pub enum ParseError {
         operation : String
     },
     SystemTimeError,
+    ExtensionNotSupported,
     NotKnow, //заменить все вхождения
 }
 

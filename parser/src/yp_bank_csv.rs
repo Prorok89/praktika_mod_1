@@ -7,8 +7,6 @@ use crate::recording_operation::{FieldRecordingOperation, RecordingOperation, St
 
 const HEADER: &str = "TX_ID,TX_TYPE,FROM_USER_ID,TO_USER_ID,AMOUNT,TIMESTAMP,STATUS,DESCRIPTION";
 
-const EXTENSION: &str = "csv";
-
 pub struct YPBankCSV;
 
 impl YPBankRecord for YPBankCSV {
@@ -140,9 +138,5 @@ impl YPBankCSV {
         } else {
             Err(ParseError::IncorrectDesciprtion)
         }
-    }
-
-    pub fn check_extension(extension: &str) -> bool {
-        extension == EXTENSION
     }
 }
