@@ -3,5 +3,16 @@
 version = 4
 
 [[package]]
-name = "praktika_mod_1"
+name = "parser"
+version = "0.1.0"
+
+[[package]]
+name = "ypbank_compare"
+version = "0.1.0"
+dependencies = [
+ "parser",
+]
+
+[[package]]
+name = "ypbank_converter"
 version = "0.1.0"
