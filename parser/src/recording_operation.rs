@@ -2,14 +2,14 @@ use std::fmt;
 
 use crate::error::ParseError;
 
-#[derive(Debug)]
+#[derive(Debug,Clone,Copy)]
 pub enum Status {
     Success,
     Failure,
     Pending,
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone,Copy)]
 pub enum TxType {
     Deposit,
     Transfer,
@@ -18,18 +18,18 @@ pub enum TxType {
 
 #[derive(Debug)]
 pub struct RecordingOperation {
-    pub tx_id : u64,
-    pub tx_type : TxType,
-    pub from_user_id : u64,
-    pub to_user_id : u64,
-    pub amount : i64,
-    pub timestamp : i64,
-    pub status : Status,
-    pub desc_len : usize, //not in csv and txt
-    pub description : String,
+    pub tx_id: u64,
+    pub tx_type: TxType,
+    pub from_user_id: u64,
+    pub to_user_id: u64,
+    pub amount: i64,
+    pub timestamp: i64,
+    pub status: Status,
+    pub desc_len: usize, //not in csv and txt
+    pub description: String,
 }
 
-pub enum FieldRecordingOperation{
+pub enum FieldRecordingOperation {
     TxId,
     TxType,
     FromUserId,
@@ -57,47 +57,44 @@ impl fmt::Debug for FieldRecordingOperation {
     }
 }
 
-impl From<TxType> for String {
-    
-    fn from(value: TxType) -> Self {
-        match value {
-            TxType::Deposit => "DEPOSIT".to_string(),
-            TxType::Transfer => "TRANSFER".to_string(),
-            TxType::Withdrawal => "WITHDRAWAL".to_string(),
-        }
-    }
-}
-
-impl TxType{
-    
+impl TxType {
     pub fn str_to_tx_type(value: &str) -> Result<TxType, ParseError> {
         match value {
             "DEPOSIT" => Ok(TxType::Deposit),
             "TRANSFER" => Ok(TxType::Transfer),
             "WITHDRAWAL" => Ok(TxType::Withdrawal),
-            _ => Err(ParseError::IncorrectOperation { operation: value.to_string() })
+            _ => Err(ParseError::IncorrectOperation {
+                operation: value.to_string(),
+            }),
+        }
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            TxType::Deposit => "DEPOSIT",
+            TxType::Transfer => "TRANSFER",
+            TxType::Withdrawal => "WITHDRAWAL",
         }
     }
 }
 
-impl From<Status> for String {
-    fn from(value: Status) -> Self {
-        match value {
-            Status::Failure => "FAILURE".to_string(),
-            Status::Pending => "PENDING".to_string(),
-            Status::Success => "SUCCESS".to_string(),
-        }
-    }
-}
-
-impl Status{
-    
+impl Status {
     pub fn str_to_status(value: &str) -> Result<Status, ParseError> {
         match value {
             "FAILURE" => Ok(Status::Failure),
             "PENDING" => Ok(Status::Pending),
             "SUCCESS" => Ok(Status::Success),
-            _ => Err(ParseError::IncorrectStatus { status: value.to_string() })
+            _ => Err(ParseError::IncorrectStatus {
+                status: value.to_string(),
+            }),
+        }
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Status::Failure => "FAILURE",
+            Status::Pending => "PENDING",
+            Status::Success => "SUCCESS",
         }
     }
 }

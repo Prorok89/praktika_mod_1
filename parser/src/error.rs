@@ -1,4 +1,4 @@
-use std::{error::Error, fmt, io};
+use std::{error::Error, fmt, io, time::SystemTimeError};
 
 use crate::recording_operation::FieldRecordingOperation;
 
@@ -19,6 +19,7 @@ pub enum ParseError {
     IncorrectOperation {
         operation : String
     },
+    SystemTimeError,
     NotKnow, //заменить все вхождения
 }
 
@@ -36,5 +37,11 @@ impl Error for ParseError {}
 impl From<std::io::Error> for ParseError {
     fn from(value: std::io::Error) -> Self {
         ParseError::IoError(value)
+    }
+}
+
+impl From<SystemTimeError> for ParseError {
+    fn from(value: SystemTimeError) -> Self {
+        ParseError::SystemTimeError
     }
 }

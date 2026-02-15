@@ -53,8 +53,28 @@ impl YPBankRecord for YPBankCSV {
         Ok(records)
     }
 
-    fn write_record<W: Write>(w: &mut W) -> Result<String, ParseError> {
-        todo!()
+    fn write_record<W: Write>(
+        w: &mut W,
+        records: &[RecordingOperation],
+    ) -> Result<(), ParseError> {
+        writeln!(w, "{}", HEADER)?;
+
+        for record in records {
+            writeln!(
+                w,
+                "{},{},{},{},{},{},{},\"{}\"",
+                record.tx_id,
+                record.tx_type.as_str(),
+                record.from_user_id,
+                record.to_user_id,
+                record.amount,
+                record.timestamp,
+                record.status.as_str(),
+                record.description
+            )?;
+        }
+
+        Ok(())
     }
 }
 
@@ -62,7 +82,7 @@ impl YPBankCSV {
     fn create(elems: Vec<&str>) -> Result<RecordingOperation, ParseError> {
         let description = Self::get_description(elems[7])?;
 
-        let d: RecordingOperation = RecordingOperation {
+        let recording_operation: RecordingOperation = RecordingOperation {
             tx_id: Self::parse_u64(elems[0], FieldRecordingOperation::TxId)?,
             tx_type: TxType::str_to_tx_type(elems[1])?,
             from_user_id: Self::parse_u64(elems[2], FieldRecordingOperation::FromUserId)?,
@@ -74,7 +94,7 @@ impl YPBankCSV {
             description,
         };
 
-        Ok(d)
+        Ok(recording_operation)
     }
 
     fn parse_csv_line(line: &str) -> Vec<&str> {
