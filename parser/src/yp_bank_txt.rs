@@ -28,8 +28,10 @@ impl YPBankRecord for YPBankTXT {
 
                         if fields.len() == 8 {
                             records.push(Self::create(&fields)?);
+                        } else {
+                            return  Err(ParseError::NotKnow);
                         }
-
+                        
                         continue;
                     }
                     
@@ -63,7 +65,22 @@ impl YPBankRecord for YPBankTXT {
     }
 
     fn write_record<W: Write>(w: &mut W, records: &[RecordingOperation]) -> Result<(), ParseError> {
-        todo!()
+        let count_records = records.len() - 1;
+        for  (index, record) in records.iter().enumerate() {
+            writeln!(w, "{}:{}", FieldRecordingOperation::TxId, record.tx_id)?;
+            writeln!(w, "{}:{}", FieldRecordingOperation::TxType, record.tx_type.as_str())?;
+            writeln!(w, "{}:{}", FieldRecordingOperation::FromUserId, record.from_user_id)?;
+            writeln!(w, "{}:{}", FieldRecordingOperation::ToUserId, record.to_user_id)?;
+            writeln!(w, "{}:{}", FieldRecordingOperation::Amount, record.amount)?;
+            writeln!(w, "{}:{}", FieldRecordingOperation::Status, record.status.as_str())?;
+            writeln!(w, "{}:{}", FieldRecordingOperation::Timestamp, record.timestamp)?;
+            writeln!(w, "{}:\"{}\"", FieldRecordingOperation::Description, record.description)?;
+
+            if count_records > index {
+                writeln!(w)?;
+            }
+        }
+        Ok(())
     }
 }
 

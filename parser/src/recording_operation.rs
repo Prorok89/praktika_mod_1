@@ -57,6 +57,22 @@ impl FieldRecordingOperation {
     }
 }
 
+impl std::fmt::Display for FieldRecordingOperation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::TxId => write!(f, "TX_ID"),
+            Self::TxType => write!(f, "TX_TYPE"),
+            Self::FromUserId => write!(f, "FROM_USER_ID"),
+            Self::ToUserId => write!(f, "TO_USER_ID"),
+            Self::Amount => write!(f, "AMOUNT"),
+            Self::Timestamp => write!(f, "TIMESTAMP"),
+            Self::Status => write!(f, "STATUS"),
+            Self::DescLen => write!(f, "DESC_LEN"),
+            Self::Description => write!(f, "DESCRIPTION"),
+        }
+    }
+}
+
 impl fmt::Debug for FieldRecordingOperation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
