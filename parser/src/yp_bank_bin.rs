@@ -1,4 +1,4 @@
-use std::io::{BufRead, BufReader, Cursor, Read, Write};
+use std::io::{BufRead, BufReader, Cursor, ErrorKind, Read, Write};
 
 use crate::YPBankRecord;
 use crate::error::ParseError;
@@ -15,7 +15,12 @@ impl YPBankRecord for YPBankBIN {
         loop {
             let mut magic = [0u8; 4];
 
-            r.read_exact(&mut magic)?;
+            if let Err(er) = r.read_exact(&mut magic) {
+                match er.kind() {
+                    ErrorKind::UnexpectedEof => break,
+                    _ =>  return  Err(ParseError::IncorrectTitle)
+                }
+            }
 
             if magic != MAGIC {
                 return Err(ParseError::IncorrectTitle);
