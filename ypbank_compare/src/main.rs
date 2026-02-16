@@ -5,18 +5,18 @@ use parser::{error::ParseError};
 
 fn main() -> Result<(), ParseError> {
 
-    let path_file : &str = "file_example/records_example.csv";
+    let path_file : &str = "file_example/records_example.bin";
 
-    let records = parser::read_file("csv", path_file)?;
+    let records = parser::read_file("bin", path_file)?;
 
     // println!("{:#?}", records);
 
-    let file_name = parser::write_file("txt", &records)?;
+    // let file_name = parser::write_file("txt", &records)?;
     // let file_name = parser::write_file("txt", &records)?;
 
-    println!("> {}", file_name);
+    // println!("> {}", file_name);
 
-    io::stdout().flush()?;
+    // io::stdout().flush()?;
 
     Ok(())
 
