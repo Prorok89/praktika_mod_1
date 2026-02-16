@@ -16,3 +16,6 @@ dependencies = [
 [[package]]
 name = "ypbank_converter"
 version = "0.1.0"
+dependencies = [
+ "parser",
+]
