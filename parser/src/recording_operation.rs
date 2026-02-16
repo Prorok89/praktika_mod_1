@@ -108,6 +108,17 @@ impl TxType {
             TxType::Withdrawal => "WITHDRAWAL",
         }
     }
+
+    pub fn from_u8(value: u8) -> Result<TxType, ParseError> {
+        match value {
+            0 => Ok(TxType::Deposit),
+            1 => Ok(TxType::Transfer),
+            2 => Ok(TxType::Withdrawal),
+            _ => Err(ParseError::IncorrectOperation {
+                operation: value.to_string(),
+            }),
+        }
+    }
 }
 
 impl Status {
@@ -127,6 +138,17 @@ impl Status {
             Status::Failure => "FAILURE",
             Status::Pending => "PENDING",
             Status::Success => "SUCCESS",
+        }
+    }
+
+    pub fn from_u8(value: u8) -> Result<Status, ParseError> {
+        match value {
+            0 => Ok(Status::Success),
+            1 => Ok(Status::Failure),
+            2 => Ok(Status::Pending),
+            _ => Err(ParseError::IncorrectStatus {
+                status: value.to_string(),
+            }),
         }
     }
 }

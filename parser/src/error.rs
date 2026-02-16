@@ -1,4 +1,4 @@
-use std::{error::Error, fmt, io, time::SystemTimeError};
+use std::{error::Error, fmt, io, string::FromUtf8Error, time::SystemTimeError};
 
 use crate::recording_operation::FieldRecordingOperation;
 
@@ -27,6 +27,7 @@ pub enum ParseError {
     MissingField {
         field : String
     },
+    InvalidString,
     NotKnow, //заменить все вхождения
 }
 
@@ -50,5 +51,11 @@ impl From<std::io::Error> for ParseError {
 impl From<SystemTimeError> for ParseError {
     fn from(value: SystemTimeError) -> Self {
         ParseError::SystemTimeError
+    }
+}
+
+impl From<FromUtf8Error> for ParseError {
+    fn from(value: FromUtf8Error) -> Self {
+        ParseError::InvalidString
     }
 }

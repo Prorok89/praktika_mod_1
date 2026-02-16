@@ -9,7 +9,7 @@ fn main() -> Result<(), ParseError> {
 
     let records = parser::read_file("bin", path_file)?;
 
-    // println!("{:#?}", records);
+    println!("{:#?}", records);
 
     // let file_name = parser::write_file("txt", &records)?;
     // let file_name = parser::write_file("txt", &records)?;
