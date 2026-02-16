@@ -2,14 +2,14 @@ use std::fmt;
 
 use crate::error::ParseError;
 
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum Status {
     Success,
     Failure,
     Pending,
 }
 
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum TxType {
     Deposit,
     Transfer,
@@ -119,6 +119,14 @@ impl TxType {
             }),
         }
     }
+
+    pub fn as_u8(&self) -> u8 {
+        match self {
+            TxType::Deposit => 0,
+            TxType::Transfer => 1,
+            TxType::Withdrawal => 2,
+        }
+    }
 }
 
 impl Status {
@@ -149,6 +157,14 @@ impl Status {
             _ => Err(ParseError::IncorrectStatus {
                 status: value.to_string(),
             }),
+        }
+    }
+
+    pub fn as_u8(self) -> u8 {
+        match self {
+            Status::Success => 0,
+            Status::Failure => 1,
+            Status::Pending => 2,
         }
     }
 }

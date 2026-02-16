@@ -38,7 +38,28 @@ impl YPBankRecord for YPBankBIN {
     }
 
     fn write_record<W: Write>(w: &mut W, records: &[RecordingOperation]) -> Result<(), ParseError> {
-        todo!()
+        
+        for record in records.iter() {
+            w.write_all(&MAGIC)?;
+
+            let mut body_bytes: Vec<u8> = Vec::new();
+
+            body_bytes.extend(record.tx_id.to_be_bytes().iter());
+            body_bytes.extend([record.tx_type.as_u8()].iter());
+            body_bytes.extend(record.from_user_id.to_be_bytes().iter());
+            body_bytes.extend(record.to_user_id.to_be_bytes().iter());
+            body_bytes.extend(record.amount.to_be_bytes().iter());
+            body_bytes.extend(record.timestamp.to_be_bytes().iter());
+            body_bytes.extend([record.status.as_u8()].iter());
+            body_bytes.extend((record.desc_len as u32).to_be_bytes().iter());
+            body_bytes.extend(format!("\"{}\"", record.description).as_bytes().iter());
+            
+            w.write_all(&(body_bytes.len() as u32).to_be_bytes())?;
+
+            w.write_all(&body_bytes)?;
+        }
+
+        Ok(())
     }
 }
 
@@ -67,6 +88,14 @@ impl YPBankBIN {
         Ok(i64::from_be_bytes(bytes))
     }
 
+    fn get_description(description: &str) -> Result<String, ParseError> {
+        if description.starts_with('"') && description.ends_with('"') {
+            Ok(description[1..(description.len() - 1)].to_string())
+        } else {
+            Err(ParseError::IncorrectDesciprtion)
+        }
+    }
+
     fn create(body: &[u8]) -> Result<RecordingOperation, ParseError> {
         let mut reader = Cursor::new(body);
 
@@ -83,7 +112,7 @@ impl YPBankBIN {
         let mut description_bytes = vec![0u8; desc_len];
         reader.read_exact(&mut description_bytes)?;
 
-        let description = String::from_utf8(description_bytes)?;
+        let description = Self::get_description(&String::from_utf8(description_bytes)?)?;
 
         let recording_operation: RecordingOperation = RecordingOperation {
             tx_id,

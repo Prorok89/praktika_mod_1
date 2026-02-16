@@ -9,14 +9,15 @@ fn main() -> Result<(), ParseError> {
 
     let records = parser::read_file("bin", path_file)?;
 
-    println!("{:#?}", records);
+    // println!("{:#?}", records);
 
+    // let file_name = parser::write_file("csv", &records)?;
+    let file_name = parser::write_file("bin", &records)?;
     // let file_name = parser::write_file("txt", &records)?;
-    // let file_name = parser::write_file("txt", &records)?;
 
-    // println!("> {}", file_name);
+    println!("> {}", file_name);
 
-    // io::stdout().flush()?;
+    io::stdout().flush()?;
 
     Ok(())
 
