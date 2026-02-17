@@ -15,6 +15,7 @@ use crate::{
     error::ParseError, recording_operation::RecordingOperation, yp_bank_bin::YPBankBIN, yp_bank_csv::YPBankCSV, yp_bank_txt::YPBankTXT
 };
 
+/// Поддерживаемые расширения файлов
 pub enum Extension {
     Csv,
     Bin,
@@ -44,6 +45,7 @@ trait YPBankRecord {
     fn write_record<W: Write>(w: &mut W, records: &[RecordingOperation]) -> Result<(), ParseError>;
 }
 
+///Чтение операции из файла
 pub fn read_file(format: &str, path_file: &str) -> Result<Vec<RecordingOperation>, ParseError> {
     let path = Path::new(path_file);
 
@@ -62,6 +64,7 @@ pub fn read_file(format: &str, path_file: &str) -> Result<Vec<RecordingOperation
     }
 }
 
+///Запись операции в файл
 pub fn write_file(format: &str, records: &[RecordingOperation]) -> Result<String, ParseError> {
     let file_name = format!("output_file_{}.{}", get_file_name()?, format);
 
