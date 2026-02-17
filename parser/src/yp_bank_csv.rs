@@ -41,10 +41,10 @@ impl YPBankRecord for YPBankCSV {
                         let record = Self::create(elems)?;
                         records.push(record);
                     } else {
-                        return Err(ParseError::NotKnow);
+                        return Err(ParseError::IncorrectTitle);
                     }
                 }
-                Err(_) => return Err(ParseError::NotKnow),
+                Err(_) => return Err(ParseError::CreateOperation),
             }
         }
 

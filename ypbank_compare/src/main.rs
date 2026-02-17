@@ -1,7 +1,6 @@
 use parser::{Extension, error::ParseError};
 use std::{
-    env,
-    io::{self, Write},
+    env
 };
 
 fn main() -> Result<(), ParseError> {
@@ -64,11 +63,11 @@ fn main() -> Result<(), ParseError> {
         panic!("Format file2 not specified");
     }
 
-    if let Err(er) = Extension::str_to_extension(&format_file_one) {
+    if let Err(_er) = Extension::str_to_extension(&format_file_one) {
         panic!("Format file1 no found");
     }
 
-    if let Err(er) = Extension::str_to_extension(&format_file_two) {
+    if let Err(_er) = Extension::str_to_extension(&format_file_two) {
         panic!("Format file2 no found");
     }
 
@@ -79,7 +78,7 @@ fn main() -> Result<(), ParseError> {
          panic!("The number of transactions is different: file1 - {}, file2 - {}", records_one.len(), records_two.len());
     }
 
-    for (_i, (r1, r2)) in records_one.iter().zip(records_two.iter()).enumerate() {
+    for (r1, r2) in records_one.iter().zip(records_two.iter()) {
         if r1 != r2 {
             panic!("Differs: file1: \n {:#?} \n file2: \n {:#?}",r1, r2);
         }

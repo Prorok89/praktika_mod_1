@@ -1,9 +1,9 @@
-use std::io::{BufRead, BufReader, Cursor, ErrorKind, Read, Write};
+use std::io::{Cursor, ErrorKind, Read, Write};
 
 use crate::YPBankRecord;
 use crate::error::ParseError;
 
-use crate::recording_operation::{FieldRecordingOperation, RecordingOperation, Status, TxType};
+use crate::recording_operation::{RecordingOperation, Status, TxType};
 
 const MAGIC: [u8; 4] = [0x59, 0x50, 0x42, 0x4E];
 pub struct YPBankBIN;

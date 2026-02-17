@@ -12,7 +12,7 @@ impl YPBankRecord for YPBankTXT {
     fn read_record<R: Read>(r: &mut R) -> Result<Vec<RecordingOperation>, ParseError> {
         let mut records: Vec<RecordingOperation> = Vec::new();
 
-        let mut buf_reader = BufReader::new(r);
+        let buf_reader = BufReader::new(r);
 
         let lines = buf_reader.lines();
 
@@ -29,7 +29,7 @@ impl YPBankRecord for YPBankTXT {
                         if fields.len() == 8 {
                             records.push(Self::create(&fields)?);
                         } else {
-                            return  Err(ParseError::NotKnow);
+                            return  Err(ParseError::CreateOperation);
                         }
                         
                         continue;
@@ -57,7 +57,7 @@ impl YPBankRecord for YPBankTXT {
                         });
                     }
                 }
-                Err(_) => return Err(ParseError::NotKnow),
+                Err(_) => return Err(ParseError::CreateOperation),
             }
         }
 
@@ -86,16 +86,16 @@ impl YPBankRecord for YPBankTXT {
 
 impl YPBankTXT {
     fn create(fields: &HashMap<String, String>) -> Result<RecordingOperation, ParseError> {
-        let description = Self::get_description(&Self::get_field(&fields,FieldRecordingOperation::Description)?)?;
+        let description = Self::get_description(&Self::get_field(fields,FieldRecordingOperation::Description)?)?;
 
         let recording_operation: RecordingOperation = RecordingOperation {
-            tx_id: Self::parse_u64(&Self::get_field(&fields,FieldRecordingOperation::TxId)?, FieldRecordingOperation::TxId)?,
-            tx_type: TxType::str_to_tx_type(&Self::get_field(&fields,FieldRecordingOperation::TxType)?)?,
-            from_user_id: Self::parse_u64(&Self::get_field(&fields,FieldRecordingOperation::FromUserId)?, FieldRecordingOperation::FromUserId)?,
-            to_user_id: Self::parse_u64(&Self::get_field(&fields,FieldRecordingOperation::ToUserId)?, FieldRecordingOperation::ToUserId)?,
-            amount: Self::parse_i64(&Self::get_field(&fields,FieldRecordingOperation::Amount)?, FieldRecordingOperation::Amount)?,
-            timestamp: Self::parse_i64(&Self::get_field(&fields,FieldRecordingOperation::Timestamp)?, FieldRecordingOperation::Timestamp)?,
-            status: Status::str_to_status(&Self::get_field(&fields,FieldRecordingOperation::Status)?)?,
+            tx_id: Self::parse_u64(&Self::get_field(fields,FieldRecordingOperation::TxId)?, FieldRecordingOperation::TxId)?,
+            tx_type: TxType::str_to_tx_type(&Self::get_field(fields,FieldRecordingOperation::TxType)?)?,
+            from_user_id: Self::parse_u64(&Self::get_field(fields,FieldRecordingOperation::FromUserId)?, FieldRecordingOperation::FromUserId)?,
+            to_user_id: Self::parse_u64(&Self::get_field(fields,FieldRecordingOperation::ToUserId)?, FieldRecordingOperation::ToUserId)?,
+            amount: Self::parse_i64(&Self::get_field(fields,FieldRecordingOperation::Amount)?, FieldRecordingOperation::Amount)?,
+            timestamp: Self::parse_i64(&Self::get_field(fields,FieldRecordingOperation::Timestamp)?, FieldRecordingOperation::Timestamp)?,
+            status: Status::str_to_status(&Self::get_field(fields,FieldRecordingOperation::Status)?)?,
             desc_len: description.len() + 2,
             description,
         };

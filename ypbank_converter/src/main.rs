@@ -50,11 +50,11 @@ fn main() -> Result<(), ParseError> {
         panic!("Input file not specified");
     }
 
-    if let Err(er) = Extension::str_to_extension(&format_input_file) {
+    if let Err(_er) = Extension::str_to_extension(&format_input_file) {
         panic!("Format input file no found");
     }
 
-    if let Err(er) = Extension::str_to_extension(&format_output_file) {
+    if let Err(_er) = Extension::str_to_extension(&format_output_file) {
         panic!("Format output file no found");
     }
 
