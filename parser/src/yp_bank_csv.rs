@@ -88,7 +88,7 @@ impl YPBankCSV {
             amount: Self::parse_i64(elems[4], FieldRecordingOperation::Amount)?,
             timestamp: Self::parse_i64(elems[5], FieldRecordingOperation::Timestamp)?,
             status: Status::str_to_status(elems[6])?,
-            desc_len: description.len(),
+            desc_len: description.len() + 2,
             description,
         };
 

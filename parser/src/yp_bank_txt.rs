@@ -96,7 +96,7 @@ impl YPBankTXT {
             amount: Self::parse_i64(&Self::get_field(&fields,FieldRecordingOperation::Amount)?, FieldRecordingOperation::Amount)?,
             timestamp: Self::parse_i64(&Self::get_field(&fields,FieldRecordingOperation::Timestamp)?, FieldRecordingOperation::Timestamp)?,
             status: Status::str_to_status(&Self::get_field(&fields,FieldRecordingOperation::Status)?)?,
-            desc_len: description.len(),
+            desc_len: description.len() + 2,
             description,
         };
 
